@@ -1,0 +1,103 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Лабораторная работа №8</title>
+    <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/css/main.css"/>
+    <script type="text/javascript" src="resources/js/canvasAdapter.js"></script>
+    <script type="text/javascript" src="resources/js/webSocket.js"></script>
+    <script type="text/javascript" src="resources/js/plot.js"></script>
+    <script type="text/javascript" src="resources/js/mainJS.js"></script>
+</h:head>
+
+<h:outputScript library="primefaces" name="jquery/jquery.js" target="body"/>
+<h:outputScript library="primefaces" name="jquery/jquery-plugins.js" target="body"/>
+
+<h:body onload="init()">
+
+    <div class="header">
+        #{data.testBean()}
+    </div>
+
+    <div class="content">
+        <div class="div-table">
+            <div class="div-table-body">
+                <div class="div-table-row">
+                    <div class="div-table-left-col">
+                        <h:form>
+
+                            <h3>Выберите X: </h3>
+                            <p:spinner id="minMax" value="#{data.x}" min="-3" max="3"/>
+
+                            <h3>Введите Y: </h3>
+                            <h:inputText value="#{data.y}"/>
+
+                            <h3>Выберите радиус: </h3>
+                            <h:selectOneRadio id="radius" value="#{data.r}" onchange="onResize()">
+                                <f:selectItem itemValue="1" itemLabel="1"/>
+                                <f:selectItem itemValue="1.5" itemLabel="1.5"/>
+                                <f:selectItem itemValue="2" itemLabel="2"/>
+                                <f:selectItem itemValue="2.5" itemLabel="2.5"/>
+                                <f:selectItem itemValue="3" itemLabel="3"/>
+                            </h:selectOneRadio>
+                            <!--add onclick-->
+                            <h:commandButton type="submit" value="Submit" action="#{data.action()}"/>
+
+                            <h:commandLink action="index">На начальную страницу </h:commandLink>
+
+                        </h:form>
+                    </div>
+                    <div class="div-table-right-col">
+                        <div class="container">
+                            <div id="canvasContainer" class="left-block">
+                                <!--<script>-->
+                                <!--draw_plot([-->
+                                <!--<c:forEach var="result" items="#{data.results}">-->
+                                <!--[#{result.x}, #{result.y}, #{result.r}, #{result.inside?"1":"0"}]-->
+                                <!--</c:forEach>-->
+                                <!--]);-->
+                                <!--</script>-->
+                                <canvas class="brd" id="graph"  onclick="setPoint(event)" style="background: white;"></canvas>
+
+                            </div>
+                        </div>
+                        <h:dataTable value="#{data.results}" var="result" style="overflow: auto; max-height: 50px">
+                            <h:column>
+                                <f:facet name="header">X</f:facet>
+                                #{result.x}
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Y</f:facet>
+                                #{result.y}
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">R</f:facet>
+                                #{result.r}
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Inside?</f:facet>
+                                #{result.inside?"Yes":"No"}
+                            </h:column>
+                        </h:dataTable>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+
+    </div>
+
+</h:body>
+
+</html>
