@@ -10,97 +10,16 @@ function init() {
     canvasPoints = document.getElementById("graph");
     rInput = document.getElementById('radius');
     window.addEventListener("resize", onResize);
-    window.addEventListener("load", initGraph());
+    window.addEventListener("load", updateGraph());
     onResize();
 }
 
-function initGraph() {
+function updateGraph() {
     Socket.send(JSON.stringify({
             type: "G",
             rval: parseFloat(r)
         })
     );
-}
-
-function initialPoints() {
-    var canvas = document.getElementById("graph");
-    var context = canvas.getContext("2d");
-    var table = document.getElementById("results");
-    var length = table.rows.length;
-    var mostRecentIndex = 1;
-    /*for (var i = 2; i < length; ++i)
-    {
-        var rowPrev = table.rows[i - 1];
-        var rowCurr = table.rows[i];
-        if (parseFloat(rowPrev.cells[2].innerHTML) != parseFloat(rowCurr.cells[2].innerHTML))
-        {
-            mostRecentIndex = i;
-        }
-    }*/
-
-    rCheckBoxes = document.forms[0].elements.rBox;
-    var currentRadius = parseInt(table.rows[mostRecentIndex].cells[2].innerHTML);
-    rCheckBoxes[currentRadius - 1].checked = true;
-    selectRadius(currentRadius - 1);
-
-    for (var i = mostRecentIndex; i < length; ++i) {
-        var row = table.rows[i];
-        var X = parseFloat(row.cells[0].innerHTML);
-        var Y = parseFloat(row.cells[1].innerHTML);
-        doRequest([X], [Y], 0);
-    }
-}
-
-function doRequest(x, y, save) {
-    return_data = [];
-    var canvas = document.getElementById("graph");
-    $.ajax({
-            type: "get",
-            url: "/lab8/echo",
-            data: {
-                x_coord: JSON.stringify(x),
-                y_coord: JSON.stringify(y),
-                rBox: R,
-                doSave: save
-            },
-            success: (save == 1 ? onAjaxSuccess : onAjaxSuccess1)
-        }
-    );
-
-    function onAjaxSuccess(data) {
-        return_data = JSON.parse(data);
-        var context = canvas.getContext("2d");
-        for (i = 0; i < return_data.length; ++i) {
-            coord_x = x[i] * k + 300;
-            coord_y = -y[i] * k + 300;
-            drawPoint(context, coord_x, coord_y, return_data[i]);
-            addTableEntry(x[i], y[i], R, return_data[i]);
-        }
-    }
-
-    function onAjaxSuccess1(data) {
-        return_data = JSON.parse(data);
-        var context = canvas.getContext("2d");
-        for (i = 0; i < return_data.length; ++i) {
-            coord_x = x[i] * k + 300;
-            coord_y = -y[i] * k + 300;
-            drawPoint(context, coord_x, coord_y, return_data[i]);
-        }
-    }
-}
-
-function addTableEntry(x, y, R, S) {
-    var table = document.getElementById("results");
-    var row = table.insertRow(-1);
-    var cell1 = row.insertCell(0);
-    var cell2 = row.insertCell(1);
-    var cell3 = row.insertCell(2);
-    var cell4 = row.insertCell(3);
-
-    cell1.innerHTML = x;
-    cell2.innerHTML = y;
-    cell3.innerHTML = R;
-    cell4.innerHTML = S == 1 ? "Yes" : "No";
 }
 
 function onResize() {
@@ -123,10 +42,11 @@ function onResize() {
     canvasGraph.width = canvasWidth;
     canvasGraph.height = canvasHeight;
     canvasFill();
-    initGraph(); // set points
+    //updateGraph(); // set points
     if (xVals.length > 0) {
         sendPoints(xVals, yVals, 0);
     }
+    updateGraph()
 }
 
 function deletePoints() {
@@ -134,14 +54,6 @@ function deletePoints() {
         type: "D",
         rval: parseFloat(r)
     }));
-}
-
-function addNewPoint() {
-    var xValue = document.getElementById("myForm:valueX").value;
-    var yValue = document.getElementById("myForm:valueY").value;
-    xVals.push(parseFloat(xValue));
-    yVals.push(parseFloat(yValue));
-    sendPoint(parseFloat(xValue), parseFloat(yValue), xVals.length - 1);
 }
 
 function validateForm() {
@@ -168,7 +80,7 @@ function saveR(value) {
 function canvasFill() {
     context = canvasGraph.getContext("2d");
     if (r > 0) {
-        drawFigure(context);
+        drawShapes(context);
     }
     drawCoordinates(context);
 }
@@ -187,7 +99,7 @@ function setPoint(event) {
         yVals.push(real_y);
         sendPoint(real_x, real_y, xVals.length - 1);
     }
-    initGraph();
+    updateGraph();
 }
 
 function sendPoints(xargs, yargs, first) {
@@ -267,13 +179,31 @@ function drawCoordinates(context) {
     context.fillText("X", canvasWidth, y_center - 10);
 }
 
-function drawFigure(context) {
+function drawShapes(context) {
     context.beginPath();
-    drawEllipse(context, x_center + 1, y_center + 1, x_transform, y_transform);
     drawTriangle(context, x_center - 1, y_center - 1);
-//    context.rect(x_center + 1, y_center - 1 - y_transform, x_transform, y_transform);
-    context.rect(0 - x_center, 1, x_transform - 1, y_transform - 1);
-
+    switch (r) {
+        case "1":
+            context.rect(x_center - y_transform + 6, y_center - y_transform, y_transform - 6, x_transform - 22);
+            drawEllipse(context, x_center + 1, y_center + 1, x_transform - 28, y_transform - 14);
+            break;
+        case "1.5":
+            context.rect(x_center - y_transform + 9, y_center - y_transform, y_transform - 9, x_transform - 32);
+            drawEllipse(context, x_center + 1, y_center + 1, x_transform - 41, y_transform - 24);
+            break;
+        case "2":
+            context.rect(x_center - y_transform + 12, y_center - y_transform, y_transform - 12, x_transform - 45);
+            drawEllipse(context, x_center + 1, y_center + 1, x_transform - 56, y_transform - 33);
+            break;
+        case "2.5":
+            context.rect(x_center - y_transform + 15, y_center - y_transform, y_transform - 15, x_transform - 55);
+            drawEllipse(context, x_center + 1, y_center + 1, x_transform - 70, y_transform - 40);
+            break;
+        case "3":
+            context.rect(x_center - y_transform + 19, y_center - y_transform, y_transform - 19, x_transform - 65);
+            drawEllipse(context, x_center + 1, y_center + 1, x_transform - 85, y_transform - 50);
+            break;
+    }
     context.closePath();
     context.fillStyle = "#5c99ED";
     context.fill();
@@ -281,11 +211,11 @@ function drawFigure(context) {
 
 function drawEllipse(context, x, y, a, b) {
     context.save();
-    context.translate(x, y);
-    context.scale(a / b, 1);
-    context.arc(0, 0, 0, -Math.PI * 0.5, 0);
+    context.translate(x, y); // The translate(x,y) method remaps the (0,0) position on the canvas.
+    context.scale(a / b, 1); // изменяет масштаб фигуры
+    context.arc(0, 0, b, 1.5 * Math.PI, 0);
     context.lineTo(0, 0);
-    context.lineTo(b, 0);
+    // context.lineTo(b, 0);
     context.restore();
 }
 
@@ -294,7 +224,7 @@ function drawTriangle(context, x, y) {
     context.translate(x, y);
     context.moveTo(0, 0);
     context.lineTo(0, y_transform / 2);
-    context.lineTo(x_transform, 0)
+    context.lineTo(x_transform, 0);
     context.lineTo(0, 0);
     context.restore();
 }

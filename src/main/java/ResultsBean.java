@@ -53,7 +53,7 @@ public class ResultsBean implements Serializable {
         // передаем сюда уже новый радиус!!!!
         try {
             Connection conn = getConnection();
-            PreparedStatement st = conn.prepareStatement("UPDATE RESULTS SET INSIDE=(?) WHERE X=(?) AND Y=(?)");
+            PreparedStatement st = conn.prepareStatement("UPDATE RESULTS SET R=(?), INSIDE=(?) WHERE X=(?) AND Y=(?)");
             st.setFloat(1, r); // TODO: добавить новый радиус
             st.setInt(2, check ? 1 : 0);
             st.setFloat(3, x);
