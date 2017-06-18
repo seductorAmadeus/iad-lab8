@@ -23,7 +23,6 @@ public class EchoEndpoint {
         r = data.getJsonNumber("rval").doubleValue();
         switch (type) {
             case "I": {
-
                 break;
             }
             case "C": {
@@ -35,8 +34,9 @@ public class EchoEndpoint {
                 for (int i = 0; i < xvals.size(); ++i) {
                     curPoint.setX(Float.parseFloat(String.valueOf((Double) xvals.getJsonNumber(i).doubleValue())));
                     curPoint.setY(Float.parseFloat(String.valueOf((Double) yvals.getJsonNumber(i).doubleValue())));
-                    curPoint.setInside(curPoint.isInside());
-                    result.add(curPoint.toString()); // возвращаем значение точки
+                    curPoint.setInside(resultsBean.check(curPoint.getX(),curPoint.getY(), curPoint.getR()));
+                    resultsBean.changeRadius(curPoint.getX(), curPoint.getY(), curPoint.getR(), curPoint.isInside());
+                    result.add(curPoint.isInside());
                 }
                 JsonArray res = result.build();
                 JsonObject retData = Json.createObjectBuilder().add("type", "C").add("points", res).add("first", data.getInt("begin")).build();

@@ -49,11 +49,32 @@ public class ResultsBean implements Serializable {
         }
     }
 
+    public void changeRadius(float x, float y, float r, boolean check) {
+        // передаем сюда уже новый радиус!!!!
+        try {
+            Connection conn = getConnection();
+            PreparedStatement st = conn.prepareStatement("UPDATE RESULTS SET INSIDE=(?) WHERE X=(?) AND Y=(?)");
+            st.setFloat(1, r); // TODO: добавить новый радиус
+            st.setInt(2, check ? 1 : 0);
+            st.setFloat(3, x);
+            st.setFloat(4, y);
+            System.out.println("Sending db update: " + st);
+            st.executeUpdate();
+            st.close();
+            conn.close();
+            db = null;
+        } catch (SQLException var4) {
+            System.err.println("Error: SQL exception " + var4.getMessage());
+            var4.printStackTrace();
+        }
+
+    }
+
     public void addResult(Point result) {
         System.out.println("Trying to add result [" + result + "]");
 
         try {
-            Connection conn = this.getConnection();
+            Connection conn = getConnection();
             PreparedStatement st = conn.prepareStatement("INSERT INTO RESULTS VALUES(?,?,?,?)");
             st.setFloat(1, result.getX());
             st.setFloat(2, result.getY());
@@ -61,6 +82,9 @@ public class ResultsBean implements Serializable {
             st.setInt(4, result.isInside() ? 1 : 0);
             System.out.println("Sending db update: " + st);
             st.executeUpdate();
+            st.close();
+            conn.close();
+            db = null;
         } catch (SQLException var4) {
             System.err.println("Error: SQL exception " + var4.getMessage());
             var4.printStackTrace();
@@ -72,14 +96,17 @@ public class ResultsBean implements Serializable {
         ArrayList results = new ArrayList();
 
         try {
-            Connection conn = this.getConnection();
-            PreparedStatement st = conn.prepareStatement("select X, Y, R, INSIDE from RESULTS");
+            Connection conn = getConnection();
+            PreparedStatement st = conn.prepareStatement("SELECT X, Y, R, INSIDE FROM RESULTS");
             ResultSet rs = st.executeQuery();
 
             while (rs.next()) {
                 Point result = new Point(rs.getFloat(1), rs.getFloat(2), rs.getFloat(3), rs.getInt(4) != 0);
                 results.add(result);
             }
+            st.close();
+            conn.close();
+            db = null;
         } catch (SQLException var6) {
             System.err.println("Error: SQL exception" + var6.getMessage());
         }
@@ -113,7 +140,7 @@ public class ResultsBean implements Serializable {
 
     public boolean check(double x, double y, double r) {
         if (((x <= 0) && (x >= -r / 2) && (y >= 0) && (y <= r)) ||
-                ((x <= r) && (y >= -r / 2) && (y >= x / 2 - r / 2)) ||
+                ((x >= 0) && (y <= 0) && (y >= x / 2 - r / 2)) ||
                 ((x >= 0) && (y >= 0) && (x * x + y * y <= r * r / 4))) {
             return true;
         } else return false;
