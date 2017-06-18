@@ -101,7 +101,7 @@
     </dependencies>
 
     <build>
-        <finalName>iad-lab8</finalName>
+        <finalName>lab8</finalName>
         <plugins>
 
             <plugin>

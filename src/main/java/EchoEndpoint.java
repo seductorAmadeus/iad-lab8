@@ -4,26 +4,30 @@ import javax.websocket.server.ServerEndpoint;
 
 import javax.json.*;
 import java.io.*;
+import java.util.List;
 
 @ApplicationScoped
 @ServerEndpoint("/echo")
 public class EchoEndpoint {
 
-    ResultsBean pointDao;
+    ResultsBean resultsBean;
 
     @OnMessage
     public void onMessage(Session session, String msg) {
         String type;
         Double r;
-        Result curPoint = new Result();
+        Point curPoint = new Point();
         JsonReader jsonReader = Json.createReader(new StringReader(msg));
         JsonObject data = jsonReader.readObject();
         type = data.getString("type");
         r = data.getJsonNumber("rval").doubleValue();
         switch (type) {
+            case "I": {
+
+                break;
+            }
             case "C": {
                 JsonArray xvals, yvals;
-                System.out.println("1212512512512");
                 xvals = data.getJsonArray("xvals");
                 yvals = data.getJsonArray("yvals");
                 JsonArrayBuilder result = Json.createArrayBuilder();
@@ -44,47 +48,92 @@ public class EchoEndpoint {
 
                 break;
             }
-//            case "A": {
-//                Double xval, yval;
-//                xval = (Double) data.getJsonNumber("xval").doubleValue();
-//                yval = (Double) data.getJsonNumber("yval").doubleValue();
-//                curPoint.setR(r);
-//                curPoint.setX(xval);
-//                curPoint.setY(yval);
-//                curPoint.checkIsEntry();
-//                try {
-//                    pointDao.addResult(curPoint);
-//                } catch (Exception e) {
-//
-//                }
-//                JsonObject retData = Json.createObjectBuilder().add("type", "A").add("point", (boolean) curPoint.getIsEntry()).add("r", (double) r).add("id", data.getInt("id")).build();
-//                try {
-//                    session.getBasicRemote().sendText(retData.toString());
-//                } catch (Throwable e) {
-//
-//                }
-//
-//                break;
-//            }
-//            case "G": {
+            case "A": {
+                Double xval, yval;
+                xval = data.getJsonNumber("xval").doubleValue();
+                yval = data.getJsonNumber("yval").doubleValue();
+                curPoint.setR((float) (double) (r));
+                curPoint.setX((float) (double) xval);
+                curPoint.setY((float) (double) yval);
+                curPoint.setInside(resultsBean.check((double) curPoint.getX(), (double) curPoint.getY(), (double) curPoint.getR()));
+                try {
+                    resultsBean.addResult(curPoint);
+                } catch (Exception e) {
+
+                }
+                JsonObject retData = Json.createObjectBuilder()
+                        .add("type", "A")
+                        .add("point", curPoint.isInside())
+                        .add("r", r)
+                        .add("id", data.getInt("id"))
+                        .build();
+                try {
+                    session.getBasicRemote().sendText(retData.toString());
+                } catch (Throwable e) {
+
+                }
+
+                break;
+            }
+            case "G": {
+                JsonArray xvals, yvals, points;
+                try {
+                    List<Point> pointList = resultsBean.getResults();
+                    JsonArrayBuilder xBuild = Json.createArrayBuilder();
+                    JsonArrayBuilder yBuild = Json.createArrayBuilder();
+                    JsonArrayBuilder pBuild = Json.createArrayBuilder();
+                    for (int i = 0; i < pointList.size(); ++i) {
+                        curPoint = pointList.get(i);
+                        curPoint.setX(Float.parseFloat(String.valueOf(pointList.get(i).getX())));
+                        curPoint.setY(Float.parseFloat(String.valueOf(pointList.get(i).getY())));
+                        curPoint.setR(Float.parseFloat(String.valueOf(pointList.get(i).getR())));
+                        curPoint.setInside((pointList.get(i).isInside())); // добавляем старые данные???
+                        xBuild.add(curPoint.getX());
+                        yBuild.add(curPoint.getY());
+                        pBuild.add(curPoint.isInside());
+                    }
+                    xvals = xBuild.build();
+                    yvals = yBuild.build();
+                    points = pBuild.build();
+                    JsonObject retData = Json.createObjectBuilder().add("type", "G")
+                            .add("xvals", xvals)
+                            .add("yvals", yvals)
+                            .add("points", points).build();
+                    try {
+                        session.getBasicRemote().sendText(retData.toString());
+                    } catch (Throwable e) {
+
+                    }
+                } catch (Exception e) {
+
+                }
+
+                break;
+
+
 //                JsonArray xvals, yvals, points;
 //                try {
-//                    List<Point> pointList = pointDao.getPoints();
+//                    List<Point> pointList = resultsBean.getResults();
 //                    JsonArrayBuilder xBuild = Json.createArrayBuilder();
 //                    JsonArrayBuilder yBuild = Json.createArrayBuilder();
 //                    JsonArrayBuilder pBuild = Json.createArrayBuilder();
 //                    for (int i = 0; i < pointList.size(); ++i) {
 //                        curPoint = pointList.get(i);
-//                        curPoint.setR(r);
-//                        curPoint.checkIsEntry();
-//                        xBuild.add((double) curPoint.getX());
-//                        yBuild.add((double) curPoint.getY());
-//                        pBuild.add((boolean) curPoint.getIsEntry());
+//                        curPoint.setX(Float.parseFloat(String.valueOf(pointList.get(i).getX())));
+//                        curPoint.setY(Float.parseFloat(String.valueOf(pointList.get(i).getY())));
+//                        curPoint.setR(Float.parseFloat(String.valueOf(pointList.get(i).getR())));
+//                        curPoint.setInside((pointList.get(i).isInside())); // добавляем старые данные???
+//                        xBuild.add(curPoint.getX());
+//                        yBuild.add(curPoint.getY());
+//                        pBuild.add(curPoint.isInside());
 //                    }
 //                    xvals = xBuild.build();
 //                    yvals = yBuild.build();
 //                    points = pBuild.build();
-//                    JsonObject retData = Json.createObjectBuilder().add("type", "G").add("xvals", xvals).add("yvals", yvals).add("points", points).build();
+//                    JsonObject retData = Json.createObjectBuilder().add("type", "G")
+//                            .add("xvals", xvals)
+//                            .add("yvals", yvals)
+//                            .add("points", points).build();
 //                    try {
 //                        session.getBasicRemote().sendText(retData.toString());
 //                    } catch (Throwable e) {
@@ -95,13 +144,13 @@ public class EchoEndpoint {
 //                }
 //
 //                break;
-//            }
+            }
 
         }
     }
 
     public void init() {
-        pointDao = new ResultsBean();
+        resultsBean = new ResultsBean();
     }
 
     @OnOpen

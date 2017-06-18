@@ -2,20 +2,45 @@ html, body {
     width: 100%;
     height: 100%;
     margin: 0;
-    background: black;
-    color: whitesmoke;
+    background: #232022;;
+    color: #839868;
 }
 
 .header {
     height: 10%;
-    background: #333;
+    background: #232022;
+    text-align: center;
+    font-size: 30px;
 }
 
 .content {
+    border: 1px solid #999999;
     height: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: -webkit-center;
+    margin-bottom: auto;
+}
+
+.time-provider {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 400px;
+    height: 200px;
+    border-radius: 3px;
+    font-size: 40px;
 }
 
 .footer {
     height: 10%;
+    background: #232022;
+    text-align: center;
 }
 
+a {
+    color: darkcyan;
+}

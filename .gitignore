@@ -1,0 +1,5 @@
+# Unused directories
+.idea/
+target/
+# IDEA files
+*.iml

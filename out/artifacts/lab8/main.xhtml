@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Лабораторная работа №8</title>
+    <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/css/main.css"/>
+    <script type="text/javascript" src="resources/js/canvasAdapter.js"></script>
+    <script type="text/javascript" src="resources/js/webSocket.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.15/datatables.min.css"/>
+
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.15/datatables.min.js"></script>
+</h:head>
+
+<h:outputScript library="primefaces" name="jquery/jquery.js" target="body"/>
+<h:outputScript library="primefaces" name="jquery/jquery-plugins.js" target="body"/>
+
+<h:body onload="init()">
+
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "scrollY": 200,
+                "scrollX": true
+            });
+        });
+    </script>
+    <div class="header">
+        Лабораторная работа №8, вариант 654.
+    </div>
+
+    <div class="content">
+        <div class="div-table">
+            <div class="div-table-body">
+                <div class="div-table-row">
+                    <div class="div-table-left-col">
+                        <h:form id="myForm">
+
+                            <h3>Выберите X: </h3>
+                            <p:spinner id="valueX1" rendered="true" onchange="saveX(value)" value="#{data.x}"
+                                       min="-3" max="3"/>
+                            <h:inputHidden id="valueX" value="0"/>
+
+                            <h3>Введите Y: </h3>
+                            <h:inputText id="valueY" value="#{data.y}" rendered="true"/>
+
+                            <h3>Выберите радиус: </h3>
+                            <h:selectOneRadio id="radius" value="#{data.r}" onchange="saveR(value)">
+                                <f:selectItem itemValue="1" itemLabel="1"/>
+                                <f:selectItem itemValue="1.5" itemLabel="1.5"/>
+                                <f:selectItem itemValue="2" itemLabel="2"/>
+                                <f:selectItem itemValue="2.5" itemLabel="2.5"/>
+                                <f:selectItem itemValue="3" itemLabel="3"/>
+                            </h:selectOneRadio>
+                            <h:inputHidden id="valueR" value="3"/>
+
+                            <!--&lt;!&ndash;add onclick&ndash;&gt;-->
+                            <!--<h:commandButton type="button" value="Submit"-->
+                            <!--onclick="if (validateForm() ===true) {addNewPoint()}"/>-->
+
+                            <!--TODO: add validation-->
+                            <h:commandButton type="submit" value="Submit"
+                                             action="#{data.addPoint}"/>
+                            <h:commandLink action="index">На начальную страницу </h:commandLink>
+
+                        </h:form>
+                    </div>
+                    <div class="div-table-right-col">
+                        <div class="container">
+                            <div id="canvasContainer" class="left-block">
+
+                                <canvas class="brd" id="graph"  onclick="setPoint(event)"
+                                        style="background: white;" width="400" height="300"></canvas>
+
+                            </div>
+                        </div>
+                        <h:dataTable id="dataTable" value="#{data.results}" class="display nowrap" cellspacing="0"
+                                     width="100%" var="o">
+                            <h:column>
+                                <f:facet name="header">X</f:facet>
+                                <h:outputText value="#{o.getX()}">
+                                    <f:convertNumber pattern="#0.##"/>
+                                </h:outputText>
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Y</f:facet>
+                                <h:outputText value="#{o.getY()}">
+                                    <f:convertNumber pattern="#0.##"/>
+                                </h:outputText>
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">R</f:facet>
+                                <h:outputText value="#{o.getR()}">
+                                    <f:convertNumber pattern="#0.##"/>
+                                </h:outputText>
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">IsInside</f:facet>
+                                #{o.isInside()}
+                            </h:column>
+                        </h:dataTable>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Posted by:
+            <a href="https://github.com/seductorAmadeus">
+                seductorAmadeus
+            </a>
+        </p>
+        <p>Contact information:
+            <a href="mailto:seductorAmadeus@gmail.com">
+                seductorAmadeus@gmail.com
+            </a>
+        </p>
+    </div>
+
+</h:body>
+
+</html>

@@ -7,23 +7,105 @@ function init() {
     yVals = [];
     divCanvas = document.getElementById('canvasContainer');
     canvasGraph = document.getElementById("graph");
-    canvasPoints = document.getElementById('points');
-
+    canvasPoints = document.getElementById("graph");
     rInput = document.getElementById('radius');
     window.addEventListener("resize", onResize);
+    window.addEventListener("load", initGraph());
     onResize();
 }
 
+function initGraph() {
+    Socket.send(JSON.stringify({
+            type: "G",
+            rval: parseFloat(r)
+        })
+    );
+}
+
+function initialPoints() {
+    var canvas = document.getElementById("graph");
+    var context = canvas.getContext("2d");
+    var table = document.getElementById("results");
+    var length = table.rows.length;
+    var mostRecentIndex = 1;
+    /*for (var i = 2; i < length; ++i)
+    {
+        var rowPrev = table.rows[i - 1];
+        var rowCurr = table.rows[i];
+        if (parseFloat(rowPrev.cells[2].innerHTML) != parseFloat(rowCurr.cells[2].innerHTML))
+        {
+            mostRecentIndex = i;
+        }
+    }*/
+
+    rCheckBoxes = document.forms[0].elements.rBox;
+    var currentRadius = parseInt(table.rows[mostRecentIndex].cells[2].innerHTML);
+    rCheckBoxes[currentRadius - 1].checked = true;
+    selectRadius(currentRadius - 1);
+
+    for (var i = mostRecentIndex; i < length; ++i) {
+        var row = table.rows[i];
+        var X = parseFloat(row.cells[0].innerHTML);
+        var Y = parseFloat(row.cells[1].innerHTML);
+        doRequest([X], [Y], 0);
+    }
+}
+
+function doRequest(x, y, save) {
+    return_data = [];
+    var canvas = document.getElementById("graph");
+    $.ajax({
+            type: "get",
+            url: "/lab8/echo",
+            data: {
+                x_coord: JSON.stringify(x),
+                y_coord: JSON.stringify(y),
+                rBox: R,
+                doSave: save
+            },
+            success: (save == 1 ? onAjaxSuccess : onAjaxSuccess1)
+        }
+    );
+
+    function onAjaxSuccess(data) {
+        return_data = JSON.parse(data);
+        var context = canvas.getContext("2d");
+        for (i = 0; i < return_data.length; ++i) {
+            coord_x = x[i] * k + 300;
+            coord_y = -y[i] * k + 300;
+            drawPoint(context, coord_x, coord_y, return_data[i]);
+            addTableEntry(x[i], y[i], R, return_data[i]);
+        }
+    }
+
+    function onAjaxSuccess1(data) {
+        return_data = JSON.parse(data);
+        var context = canvas.getContext("2d");
+        for (i = 0; i < return_data.length; ++i) {
+            coord_x = x[i] * k + 300;
+            coord_y = -y[i] * k + 300;
+            drawPoint(context, coord_x, coord_y, return_data[i]);
+        }
+    }
+}
+
+function addTableEntry(x, y, R, S) {
+    var table = document.getElementById("results");
+    var row = table.insertRow(-1);
+    var cell1 = row.insertCell(0);
+    var cell2 = row.insertCell(1);
+    var cell3 = row.insertCell(2);
+    var cell4 = row.insertCell(3);
+
+    cell1.innerHTML = x;
+    cell2.innerHTML = y;
+    cell3.innerHTML = R;
+    cell4.innerHTML = S == 1 ? "Yes" : "No";
+}
+
 function onResize() {
-    if (r === 3) {
-        r=2;
-    } else r = 3;
-    // if (rInput.value === null) {
-    //     r = 3;
-    // } else {
-    //     r = rInput.value;
-    // }
-    // // r = rInput.value;
+    r = document.getElementById("myForm:valueR").value;
+
     canvasWidth = divCanvas.clientWidth;
     widthMod = canvasWidth % 8;
     if (widthMod != 0) {
@@ -41,6 +123,7 @@ function onResize() {
     canvasGraph.width = canvasWidth;
     canvasGraph.height = canvasHeight;
     canvasFill();
+    initGraph(); // set points
     if (xVals.length > 0) {
         sendPoints(xVals, yVals, 0);
     }
@@ -53,6 +136,34 @@ function deletePoints() {
     }));
 }
 
+function addNewPoint() {
+    var xValue = document.getElementById("myForm:valueX").value;
+    var yValue = document.getElementById("myForm:valueY").value;
+    xVals.push(parseFloat(xValue));
+    yVals.push(parseFloat(yValue));
+    sendPoint(parseFloat(xValue), parseFloat(yValue), xVals.length - 1);
+}
+
+function validateForm() {
+    var text = "";
+    var y = document.getElementById("myForm:valueY").value;
+    if (!isNaN(y)) {
+        alert("Input not valid! ");
+        //document.getElementById("answerValid").innerHTML = text;
+        return false;
+    }
+    document.getElementById("answerValid").innerHTML = text;
+    return true;
+}
+
+function saveX(value) {
+    document.getElementById("myForm:valueX").value = value;
+}
+
+function saveR(value) {
+    document.getElementById("myForm:valueR").value = value;
+    onResize();
+}
 
 function canvasFill() {
     context = canvasGraph.getContext("2d");
@@ -76,6 +187,7 @@ function setPoint(event) {
         yVals.push(real_y);
         sendPoint(real_x, real_y, xVals.length - 1);
     }
+    initGraph();
 }
 
 function sendPoints(xargs, yargs, first) {
@@ -159,7 +271,9 @@ function drawFigure(context) {
     context.beginPath();
     drawEllipse(context, x_center + 1, y_center + 1, x_transform, y_transform);
     drawTriangle(context, x_center - 1, y_center - 1);
-    context.rect(x_center + 1, y_center - 1 - y_transform, x_transform, y_transform);
+//    context.rect(x_center + 1, y_center - 1 - y_transform, x_transform, y_transform);
+    context.rect(0 - x_center, 1, x_transform - 1, y_transform - 1);
+
     context.closePath();
     context.fillStyle = "#5c99ED";
     context.fill();
@@ -169,7 +283,7 @@ function drawEllipse(context, x, y, a, b) {
     context.save();
     context.translate(x, y);
     context.scale(a / b, 1);
-    context.arc(0, 0, b, 0, Math.PI * 0.5, false);
+    context.arc(0, 0, 0, -Math.PI * 0.5, 0);
     context.lineTo(0, 0);
     context.lineTo(b, 0);
     context.restore();
@@ -179,8 +293,8 @@ function drawTriangle(context, x, y) {
     context.save();
     context.translate(x, y);
     context.moveTo(0, 0);
-    context.lineTo(0, -y_transform);
-    context.lineTo(-x_transform / 2, 0)
+    context.lineTo(0, y_transform / 2);
+    context.lineTo(x_transform, 0)
     context.lineTo(0, 0);
     context.restore();
 }

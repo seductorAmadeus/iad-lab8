@@ -27,11 +27,7 @@ public class ResultsBean implements Serializable {
     @PostConstruct
     public void init() {
         r = "3";
-    }
-
-    public String testBean() {
-        return "Привет всем!";
-    }
+    } // initial radius value
 
     private Connection getConnection() {
         if (db != null) {
@@ -53,7 +49,7 @@ public class ResultsBean implements Serializable {
         }
     }
 
-    public void addResult(Result result) {
+    public void addResult(Point result) {
         System.out.println("Trying to add result [" + result + "]");
 
         try {
@@ -72,7 +68,7 @@ public class ResultsBean implements Serializable {
 
     }
 
-    public ArrayList<Result> getResults() {
+    public ArrayList<Point> getResults() {
         ArrayList results = new ArrayList();
 
         try {
@@ -81,7 +77,7 @@ public class ResultsBean implements Serializable {
             ResultSet rs = st.executeQuery();
 
             while (rs.next()) {
-                Result result = new Result(rs.getFloat(1), rs.getFloat(2), rs.getFloat(3), rs.getInt(4) != 0);
+                Point result = new Point(rs.getFloat(1), rs.getFloat(2), rs.getFloat(3), rs.getInt(4) != 0);
                 results.add(result);
             }
         } catch (SQLException var6) {
@@ -115,19 +111,22 @@ public class ResultsBean implements Serializable {
         this.r = r;
     }
 
-    private boolean check(double x, double y, double r) {
-        return x > 0.0D ? y <= 0.0D && -x + 2.0D * y + r >= 0.0D : (y >= 0.0D ? y <= r && x >= -r / 2.0D : x * x + y * y <= r * r);
+    public boolean check(double x, double y, double r) {
+        if (((x <= 0) && (x >= -r / 2) && (y >= 0) && (y <= r)) ||
+                ((x <= r) && (y >= -r / 2) && (y >= x / 2 - r / 2)) ||
+                ((x >= 0) && (y >= 0) && (x * x + y * y <= r * r / 4))) {
+            return true;
+        } else return false;
     }
 
-    public String action() throws Exception {
+    public String addPoint() throws Exception {
         System.out.println("Request: " + this.x + " " + this.y + " " + this.r);
 
         try {
             float x = Float.parseFloat(this.x);
             float y = Float.parseFloat(this.y);
             float r = Float.parseFloat(this.r);
-            x /= 100.0F;
-            Result result = new Result(x, y, r, this.check((double) x, (double) y, (double) r));
+            Point result = new Point(x, y, r, this.check((double) x, (double) y, (double) r));
             this.addResult(result);
         } catch (NumberFormatException var5) {
             ;
