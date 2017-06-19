@@ -56,18 +56,6 @@ function deletePoints() {
     }));
 }
 
-function validateForm() {
-    var text = "";
-    var y = document.getElementById("myForm:valueY").value;
-    if (!isNaN(y)) {
-        alert("Input not valid! ");
-        //document.getElementById("answerValid").innerHTML = text;
-        return false;
-    }
-    document.getElementById("answerValid").innerHTML = text;
-    return true;
-}
-
 function saveX(value) {
     document.getElementById("myForm:valueX").value = value;
 }
@@ -90,15 +78,11 @@ function setPoint(event) {
     offset = (rect.width - canvasGraph.width) / 2 + 1;
     x = event.clientX - rect.left - offset;
     y = event.clientY - rect.top - offset;
-    if (r == 0) {
-        alert("Установите радиус сначала");
-    } else {
-        real_x = r * (x - x_center) / x_transform;
-        real_y = -r * (y - y_center) / y_transform;
-        xVals.push(real_x);
-        yVals.push(real_y);
-        sendPoint(real_x, real_y, xVals.length - 1);
-    }
+    real_x = r * (x - x_center) / x_transform;
+    real_y = -r * (y - y_center) / y_transform;
+    xVals.push(real_x);
+    yVals.push(real_y);
+    sendPoint(real_x, real_y, xVals.length - 1);
     updateGraph();
 }
 
@@ -215,7 +199,6 @@ function drawEllipse(context, x, y, a, b) {
     context.scale(a / b, 1); // изменяет масштаб фигуры
     context.arc(0, 0, b, 1.5 * Math.PI, 0);
     context.lineTo(0, 0);
-    // context.lineTo(b, 0);
     context.restore();
 }
 

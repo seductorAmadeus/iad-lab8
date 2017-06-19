@@ -16,7 +16,7 @@
     <div class="content">
         <div class="time-provider">
             <h:form>
-                <h:outputText class="time" id="time" value="#{timeProvider.value}"/>
+                <h:outputText class="time" id="time" value="#{timeProvider.time}"/>
                 <p:poll interval="11" listener="#{timeProvider.update}" update="time"/>
                 <br></br>
                 <h:commandLink action="main">На главную </h:commandLink>

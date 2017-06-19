@@ -38,7 +38,7 @@ public class Point {
         this.r = r;
     }
 
-    public boolean isInside() {
+    public boolean getInside() {
         return this.inside;
     }
 

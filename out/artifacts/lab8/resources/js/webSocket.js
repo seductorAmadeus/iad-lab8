@@ -51,7 +51,6 @@ Socket.onmessage = function (event) {
             break;
 
         case "G":
-            console.log("124124124124124");
             console.log(data);
             xVals = data.xvals;
             yVals = data.yvals;
@@ -68,23 +67,3 @@ Socket.onmessage = function (event) {
 Socket.onclose = function () {
     console.log('Connection Lost');
 };
-
-function sendMessage() {
-    yval = document.getElementById('yValue').value;
-    xval = $('input[name=xValue]:checked').val();
-    if (isNaN(yval) || yval < -4 || yval > 3) {
-        alert("Неверно задан Y");
-    } else if (isNaN(xval)) {
-        console.log(xval);
-        alert("Не задан X");
-    } else if (r == 0) {
-        alert("Задайте радиус ненулевой длины сначала");
-    } else {
-        yval = parseFloat(yval);
-        xval = parseFloat(xval);
-        xVals.push(xval);
-        yVals.push(yval);
-        sendPoint(xval, yval, xVals.length - 1);
-    }
-
-}

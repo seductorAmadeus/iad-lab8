@@ -14,14 +14,13 @@ import javax.faces.bean.ManagedBean;
         eager = true
 )
 @ApplicationScoped
-public class ResultsBean implements Serializable {
+public class DatabasePointsBean implements Serializable {
     private static Connection db = null;
     private String x = "0";
     private String y;
     private String r;
 
-    public ResultsBean() {
-        System.out.println("Heya! New ResultsBean!");
+    public DatabasePointsBean() {
     }
 
     @PostConstruct
@@ -50,18 +49,17 @@ public class ResultsBean implements Serializable {
     }
 
     public void changeRadius(float x, float y, float r, boolean check) {
-        // передаем сюда уже новый радиус!!!!
         try {
-            Connection conn = getConnection();
-            PreparedStatement st = conn.prepareStatement("UPDATE RESULTS SET R=(?), INSIDE=(?) WHERE X=(?) AND Y=(?)");
-            st.setFloat(1, r); // TODO: добавить новый радиус
-            st.setInt(2, check ? 1 : 0);
-            st.setFloat(3, x);
-            st.setFloat(4, y);
-            System.out.println("Sending db update: " + st);
-            st.executeUpdate();
-            st.close();
-            conn.close();
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement("UPDATE RESULTS SET R=(?), INSIDE=(?) WHERE X=(?) AND Y=(?)");
+            statement.setFloat(1, r);
+            statement.setInt(2, check ? 1 : 0);
+            statement.setFloat(3, x);
+            statement.setFloat(4, y);
+            System.out.println("Sending db update: " + statement);
+            statement.executeUpdate();
+            statement.close();
+            connection.close();
             db = null;
         } catch (SQLException var4) {
             System.err.println("Error: SQL exception " + var4.getMessage());
@@ -70,48 +68,45 @@ public class ResultsBean implements Serializable {
 
     }
 
-    public void addResult(Point result) {
-        System.out.println("Trying to add result [" + result + "]");
-
+    public void addPoint(Point point) {
         try {
-            Connection conn = getConnection();
-            PreparedStatement st = conn.prepareStatement("INSERT INTO RESULTS VALUES(?,?,?,?)");
-            st.setFloat(1, result.getX());
-            st.setFloat(2, result.getY());
-            st.setFloat(3, result.getR());
-            st.setInt(4, result.isInside() ? 1 : 0);
-            System.out.println("Sending db update: " + st);
-            st.executeUpdate();
-            st.close();
-            conn.close();
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO RESULTS VALUES(?,?,?,?)");
+            statement.setFloat(1, point.getX());
+            statement.setFloat(2, point.getY());
+            statement.setFloat(3, point.getR());
+            statement.setInt(4, point.getInside() ? 1 : 0);
+            System.out.println("Sending db update: " + statement);
+            statement.executeUpdate();
+            statement.close();
+            connection.close();
             db = null;
         } catch (SQLException var4) {
             System.err.println("Error: SQL exception " + var4.getMessage());
             var4.printStackTrace();
         }
-
     }
 
-    public ArrayList<Point> getResults() {
-        ArrayList results = new ArrayList();
+    public ArrayList<Point> getPoints() {
+        ArrayList points = new ArrayList();
 
         try {
-            Connection conn = getConnection();
-            PreparedStatement st = conn.prepareStatement("SELECT X, Y, R, INSIDE FROM RESULTS");
-            ResultSet rs = st.executeQuery();
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement("SELECT X, Y, R, INSIDE FROM RESULTS");
+            ResultSet rs = statement.executeQuery();
 
             while (rs.next()) {
-                Point result = new Point(rs.getFloat(1), rs.getFloat(2), rs.getFloat(3), rs.getInt(4) != 0);
-                results.add(result);
+                Point point = new Point(rs.getFloat(1), rs.getFloat(2), rs.getFloat(3), rs.getInt(4) != 0);
+                points.add(point);
             }
-            st.close();
-            conn.close();
+            statement.close();
+            connection.close();
             db = null;
         } catch (SQLException var6) {
             System.err.println("Error: SQL exception" + var6.getMessage());
         }
 
-        return results;
+        return points;
     }
 
     public String getX() {
@@ -139,11 +134,9 @@ public class ResultsBean implements Serializable {
     }
 
     public boolean check(double x, double y, double r) {
-        if (((x <= 0) && (x >= -r / 2) && (y >= 0) && (y <= r)) ||
+        return ((x <= 0) && (x >= -r / 2) && (y >= 0) && (y <= r)) ||
                 ((x >= 0) && (y <= 0) && (y >= x / 2 - r / 2)) ||
-                ((x >= 0) && (y >= 0) && (x * x + y * y <= r * r / 4))) {
-            return true;
-        } else return false;
+                ((x >= 0) && (y >= 0) && (x * x + y * y <= r * r / 4));
     }
 
     public String addPoint() throws Exception {
@@ -153,8 +146,8 @@ public class ResultsBean implements Serializable {
             float x = Float.parseFloat(this.x);
             float y = Float.parseFloat(this.y);
             float r = Float.parseFloat(this.r);
-            Point result = new Point(x, y, r, this.check((double) x, (double) y, (double) r));
-            this.addResult(result);
+            Point point = new Point(x, y, r, this.check((double) x, (double) y, (double) r));
+            this.addPoint(point);
         } catch (NumberFormatException var5) {
             ;
         } catch (Exception var6) {
