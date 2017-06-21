@@ -1,9 +1,12 @@
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 import javax.faces.bean.ApplicationScoped;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
 import javax.json.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
@@ -11,11 +14,11 @@ import java.util.List;
 public class WebSocketListener {
 
     DatabasePointsBean databasePointsBean;
+    private String type;
+    private Double r;
 
     @OnMessage
     public void onMessage(Session session, String message) {
-        String type;
-        Double r;
         Point curPoint = new Point();
         JsonReader jsonReader = Json.createReader(new StringReader(message));
         JsonObject data = jsonReader.readObject();
@@ -23,17 +26,11 @@ public class WebSocketListener {
         r = data.getJsonNumber("rval").doubleValue();
         switch (type) {
             case "C": {
-                JsonArray xvals, yvals;
-                xvals = data.getJsonArray("xvals");
-                yvals = data.getJsonArray("yvals");
                 JsonArrayBuilder result = Json.createArrayBuilder();
-                curPoint.setR(Float.parseFloat(r.toString()));
-                for (int i = 0; i < xvals.size(); ++i) {
-                    curPoint.setX(Float.parseFloat(String.valueOf((Double) xvals.getJsonNumber(i).doubleValue())));
-                    curPoint.setY(Float.parseFloat(String.valueOf((Double) yvals.getJsonNumber(i).doubleValue())));
-                    curPoint.setInside(databasePointsBean.check(curPoint.getX(), curPoint.getY(), curPoint.getR()));
-                    databasePointsBean.changeRadius(curPoint.getX(), curPoint.getY(), curPoint.getR(), curPoint.getInside());
-                    result.add(curPoint.getInside());
+                // изменяем значения радиусов в БД на указанное и возвращаем обновленный список вхождений;
+                ArrayList<Boolean> listOfInsideInformation = databasePointsBean.changeRadius((float) (double) r);
+                for (int i = 0; i <= listOfInsideInformation.size(); i++) {
+                    result.add(listOfInsideInformation.get(i));
                 }
                 JsonArray res = result.build();
                 JsonObject retData = Json.createObjectBuilder().add("type", "C").add("points", res).add("first", data.getInt("begin")).build();

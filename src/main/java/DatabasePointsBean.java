@@ -48,16 +48,30 @@ public class DatabasePointsBean implements Serializable {
         }
     }
 
-    public void changeRadius(float x, float y, float r, boolean check) {
+    public ArrayList<Boolean> changeRadius(float r) {
+        ArrayList<Boolean> listOfInsideInformation = new ArrayList<>();
+        ArrayList<Point> points = new ArrayList<>();
         try {
+            float x, y;
             Connection connection = getConnection();
             PreparedStatement statement = connection.prepareStatement("UPDATE RESULTS SET R=(?), INSIDE=(?) WHERE X=(?) AND Y=(?)");
-            statement.setFloat(1, r);
-            statement.setInt(2, check ? 1 : 0);
-            statement.setFloat(3, x);
-            statement.setFloat(4, y);
+            PreparedStatement statementGet = connection.prepareStatement("SELECT X, Y, R, INSIDE FROM RESULTS");
+            ResultSet rs = statementGet.executeQuery();
+            while (rs.next()) {
+                Point point = new Point(rs.getFloat(1), rs.getFloat(2), rs.getFloat(3), rs.getInt(4) != 0);
+                points.add(point);
+            }
+            for (int i = 0; i <= points.size(); i++) {
+                x = points.get(i).getX();
+                y = points.get(i).getY();
+                listOfInsideInformation.add(check(x, y, r));
+                statement.setFloat(1, r);
+                statement.setInt(2, listOfInsideInformation.get(i) ? 1 : 0);
+                statement.setFloat(3, x);
+                statement.setFloat(4, y);
+                statement.executeUpdate();
+            }
             System.out.println("Sending db update: " + statement);
-            statement.executeUpdate();
             statement.close();
             connection.close();
             db = null;
@@ -65,7 +79,7 @@ public class DatabasePointsBean implements Serializable {
             System.err.println("Error: SQL exception " + var4.getMessage());
             var4.printStackTrace();
         }
-
+        return listOfInsideInformation;
     }
 
     public void addPoint(Point point) {

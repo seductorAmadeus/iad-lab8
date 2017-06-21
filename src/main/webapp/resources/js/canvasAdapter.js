@@ -8,10 +8,15 @@ function init() {
     divCanvas = document.getElementById('canvasContainer');
     canvasGraph = document.getElementById("graph");
     canvasPoints = document.getElementById("graph");
-    rInput = document.getElementById('radius');
     window.addEventListener("resize", onResize);
     window.addEventListener("load", updateGraph());
-    onResize();
+    Socket.send(JSON.stringify({
+            type: "G",
+            rval: parseFloat(3)
+        })
+    );
+    resizeWithoutRadius();
+    // onResize();
 }
 
 function updateGraph() {
@@ -20,6 +25,46 @@ function updateGraph() {
             rval: parseFloat(r)
         })
     );
+}
+
+function resizeWithoutRadius() {
+    canvasWidth = divCanvas.clientWidth;
+    widthMod = canvasWidth % 8;
+    if (widthMod != 0) {
+        canvasWidth -= widthMod;
+    }
+    canvasHeight = divCanvas.clientHeight;
+    heightMod = canvasHeight % 8;
+    if (heightMod != 0) {
+        canvasHeight -= heightMod;
+    }
+    x_center = Math.floor(canvasWidth / 2);
+    y_center = Math.floor(canvasHeight / 2);
+    x_transform = Math.floor(3 * (canvasWidth - 32) / 8);
+    y_transform = Math.floor(3 * (canvasHeight - 32) / 8);
+    canvasGraph.width = canvasWidth;
+    canvasGraph.height = canvasHeight;
+
+    /* canvas fill block */
+    context = canvasGraph.getContext("2d");
+    drawShapes(context, 3);
+    drawCoordinates(context);
+    /* end of canvas fill block */
+
+    data = JSON.stringify({
+        type: "C",
+        xvals: xVals,
+        yvals: yVals,
+        begin: 0,
+        rval: parseFloat(3)
+    });
+    console.log(data);
+    Socket.send(data);
+    //updateGraph(); // set points
+    // if (xVals.length > 0) {
+    //     sendPoints(xVals, yVals, 0);
+    // }
+
 }
 
 function onResize() {
@@ -164,6 +209,10 @@ function drawCoordinates(context) {
 }
 
 function drawShapes(context) {
+    if (arguments.length === 2) {
+        alert("2 аргумента: " + arguments[1]);
+        r = "3";
+    }
     context.beginPath();
     drawTriangle(context, x_center - 1, y_center - 1);
     switch (r) {
