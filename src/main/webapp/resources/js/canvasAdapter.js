@@ -1,4 +1,4 @@
-var divCanvas, canvasGraph, rInput, canvasPoints;
+var divCanvas, canvasGraph, canvasPoints;
 var x_center, y_center, x_transform, y_transform, r, canvasHeight, canvasWidth;
 var xVals, yVals;
 
@@ -16,7 +16,15 @@ function init() {
         })
     );
     resizeWithoutRadius();
-    // onResize();
+    clearForm();
+}
+
+function clearForm() {
+    saveX(0);
+    // обновление выбранного радиуса происходит при обновлении страницы путем возврата дефолтного значения в mbean-a
+    document.getElementById("myForm:valueR").value = 3;
+    onResize();
+    document.getElementById("myForm:valueY").value = "";
 }
 
 function updateGraph() {

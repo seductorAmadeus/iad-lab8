@@ -7,7 +7,6 @@ Socket.onopen = function () {
             rval: parseFloat(r)
         })
     );
-    console.log("send***&");
 };
 
 Socket.onmessage = function (event) {

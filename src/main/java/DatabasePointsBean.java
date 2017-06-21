@@ -140,7 +140,7 @@ public class DatabasePointsBean implements Serializable {
     }
 
     public String getR() {
-        return this.r;
+        return "3"; // TODO: всегда возвращает дефолтное значение; при обновлении всегда меняет радиус на стандартный.
     }
 
     public void setR(String r) {

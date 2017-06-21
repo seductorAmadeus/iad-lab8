@@ -53,11 +53,12 @@
 
                             <h3>Выберите радиус: </h3>
                             <h:selectOneRadio id="radius" value="#{data.r}" onchange="saveR(value)">
-                                <f:selectItem itemValue="1" itemLabel="1"/>
+                                <f:selectItem itemValue="1" checked="checked" itemLabel="1"/>
                                 <f:selectItem itemValue="1.5" itemLabel="1.5"/>
                                 <f:selectItem itemValue="2" itemLabel="2"/>
                                 <f:selectItem itemValue="2.5" itemLabel="2.5"/>
                                 <f:selectItem itemValue="3" itemLabel="3"/>
+                                <f:ajax render="dataTable"/>
                             </h:selectOneRadio>
                             <h:inputHidden id="valueR" value="3"/>
 
@@ -71,10 +72,8 @@
                     <div class="div-table-right-col">
                         <div class="container">
                             <div id="canvasContainer" class="left-block">
-
                                 <canvas class="brd" id="graph" onclick="setPoint(event)"
                                         style="background: white;" width="400" height="300"></canvas>
-
                             </div>
                         </div>
                         <h:dataTable id="dataTable" value="#{data.points}" class="display nowrap" cellspacing="0"
