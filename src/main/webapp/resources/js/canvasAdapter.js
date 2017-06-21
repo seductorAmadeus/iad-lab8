@@ -64,7 +64,7 @@ function resizeWithoutRadius() {
     // if (xVals.length > 0) {
     //     sendPoints(xVals, yVals, 0);
     // }
-
+    updateGraph()
 }
 
 function onResize() {
