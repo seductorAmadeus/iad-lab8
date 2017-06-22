@@ -21,13 +21,8 @@
 <h:body onload="init()">
 
     <script>
-        $(document).ready(function () {
-            $('#dataTable').DataTable({
-                "scrollY": 200,
-                "scrollX": true
-            });
-        });
-
+        window.alert = function () {
+        };
     </script>
     <div class="header">
         Лабораторная работа №8, вариант 654.
@@ -58,13 +53,14 @@
                                 <f:selectItem itemValue="2" itemLabel="2"/>
                                 <f:selectItem itemValue="2.5" itemLabel="2.5"/>
                                 <f:selectItem itemValue="3" itemLabel="3"/>
-                                <f:ajax render="dataTable"/>
+                                <f:ajax render=":test1:dataTable"/>
                             </h:selectOneRadio>
                             <h:inputHidden id="valueR" value="3"/>
 
                             <h:commandButton value="Добавить точку"
                                              action="#{data.addPoint}">
-                                <f:ajax event="change" execute="@form" action="#{data.addPoint}" render="dataTable"/>
+                                <f:ajax execute="@form" action="#{data.addPoint}"
+                                        render=":test1:dataTable"/>
                             </h:commandButton>
                         </h:form>
                         <h:form>
@@ -75,34 +71,41 @@
                         <div class="container">
                             <div id="canvasContainer" class="left-block">
                                 <canvas class="brd" id="graph" onclick="setPoint(event)"
-                                        style="background: white;" width="400" height="300"></canvas>
+                                        style="background: white;" width="400" height="300">
+                                </canvas>
                             </div>
                         </div>
-                        <h:dataTable id="dataTable" value="#{data.points}" class="display nowrap" cellspacing="0"
-                                     width="100%" var="point">
-                            <h:column>
-                                <f:facet name="header">X</f:facet>
-                                <h:outputText value="#{point.getX()}">
-                                    <f:convertNumber pattern="#0.##"/>
-                                </h:outputText>
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header">Y</f:facet>
-                                <h:outputText value="#{point.getY()}">
-                                    <f:convertNumber pattern="#0.##"/>
-                                </h:outputText>
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header">R</f:facet>
-                                <h:outputText value="#{point.getR()}">
-                                    <f:convertNumber pattern="#0.##"/>
-                                </h:outputText>
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header">IsInside</f:facet>
-                                #{point.getInside()}
-                            </h:column>
-                        </h:dataTable>
+                        <h:form id="test1">
+                            <div id="testin" style="overflow:auto; width:700px; height:250px;">
+                                <h:dataTable id="dataTable" value="#{data.points}" class="display nowrap"
+                                             cellspacing="0"
+                                             width="100%" var="point">
+                                    <h:column>
+                                        <f:facet name="header">X</f:facet>
+                                        <h:outputText value="#{point.getX()}">
+                                            <f:convertNumber pattern="#0.##"/>
+                                        </h:outputText>
+                                    </h:column>
+                                    <h:column>
+                                        <f:facet name="header">Y</f:facet>
+                                        <h:outputText value="#{point.getY()}">
+                                            <f:convertNumber pattern="#0.##"/>
+                                        </h:outputText>
+                                    </h:column>
+                                    <h:column>
+                                        <f:facet name="header">R</f:facet>
+                                        <h:outputText value="#{point.getR()}">
+                                            <f:convertNumber pattern="#0.##"/>
+                                        </h:outputText>
+                                    </h:column>
+                                    <h:column>
+                                        <f:facet name="header">IsInside</f:facet>
+                                        #{point.getInside()}
+                                    </h:column>
+                                </h:dataTable>
+                                <p:poll interval="3" listener="#{counterView.increment}" update="dataTable"/>
+                            </div>
+                        </h:form>
                     </div>
                 </div>
             </div>

@@ -34,9 +34,12 @@ public class DatabasePointsBean implements Serializable {
         } else {
             try {
                 Class.forName("oracle.jdbc.driver.OracleDriver");
-                String URL = "jdbc:oracle:thin:@localhost:1521:xe";
-                String USER = "martin";
-                String PASS = "0797";
+//                String URL = "jdbc:oracle:thin:@localhost:1521:xe";
+//                String USER = "martin";
+//                String PASS = "0797";
+                String URL = "jdbc:oracle:thin:@localhost:1521:orbis";
+                String USER = "s208064";
+                String PASS = "P9JVau";
                 db = DriverManager.getConnection(URL, USER, PASS);
                 System.out.println("Got connection");
             } catch (Exception var4) {

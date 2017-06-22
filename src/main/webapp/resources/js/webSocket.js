@@ -1,4 +1,6 @@
-Socket = new WebSocket("ws://localhost:60233/lab8/echo");
+Socket = new WebSocket("ws://localhost:63938/lab8/echo");
+// Socket = new WebSocket("ws://localhost:60233/lab8/echo");
+
 
 Socket.onopen = function () {
     console.log("Connected");
@@ -25,7 +27,7 @@ Socket.onmessage = function (event) {
 
         case "A":
             console.log(data);
-            body = document.getElementById("dataTable").getElementsByTagName("tbody")[0];
+            body = document.getElementById("test1:dataTable").getElementsByTagName("tbody")[0];
             id = parseInt(data.id);
             new_tr = document.createElement("tr");
             x_td = document.createElement("td");
