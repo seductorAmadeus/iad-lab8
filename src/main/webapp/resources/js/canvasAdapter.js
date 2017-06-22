@@ -24,7 +24,6 @@ function clearForm() {
     // обновление выбранного радиуса происходит при обновлении страницы путем возврата дефолтного значения в mbean-a
     document.getElementById("myForm:valueR").value = 3;
     onResize();
-    document.getElementById("myForm:valueY").value = "";
 }
 
 function updateGraph() {
@@ -218,7 +217,6 @@ function drawCoordinates(context) {
 
 function drawShapes(context) {
     if (arguments.length === 2) {
-        alert("2 аргумента: " + arguments[1]);
         r = "3";
     }
     context.beginPath();
