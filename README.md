@@ -40,4 +40,4 @@
 
 ## Авторы
 
-* **Rayla Martin** - *iad-lab6* - [seductorAmadeus](https://github.com/seductorAmadeus)
+* **Rayla Martin** - *iad-lab8* - [seductorAmadeus](https://github.com/seductorAmadeus)
